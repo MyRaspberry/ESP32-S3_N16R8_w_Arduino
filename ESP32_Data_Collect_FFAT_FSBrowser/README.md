@@ -11,4 +11,5 @@ incl:<br/>
 
 ### 1 min : save / append to FFAT /data/readings.csv
 
-<CODE>,191,2024-01-07 16:09:29,58.46,30.28,1.00,</CODE>
+<CODE>,rec,datetimes,A0,A1,A2,
+,191,2024-01-07 16:09:29,58.46,30.28,1.00,</CODE>

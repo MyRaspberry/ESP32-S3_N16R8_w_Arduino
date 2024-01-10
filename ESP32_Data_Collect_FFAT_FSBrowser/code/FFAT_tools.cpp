@@ -23,10 +23,10 @@ void FFAT_Tools::setup() {
     return;
   }
 
-  Serial.println("+++ FFAT ");
-  Serial.printf("+++ Total space: %10u\n", FFat.totalBytes());
-  Serial.printf("+++ Free space: %10u\n", FFat.freeBytes());
-  listDir(FFat, "/", 1);
+  if ( DIAG ) Serial.println("+++ FFAT ");
+  if ( DIAG ) Serial.printf("+++ Total space: %10u\n", FFat.totalBytes());
+  if ( DIAG ) Serial.printf("+++ Free space: %10u\n", FFat.freeBytes());
+  listDir(FFat, "/", 1); // _________________________________________ level 1 shows also /data dir content
 // OLD
   //writeFile(FFat, "/hello.txt", "Hello ");
   //appendFile(FFat, "/hello.txt", "World!\r\n");
@@ -43,8 +43,8 @@ void FFAT_Tools::setup() {
   //createDir(FFat, "/data"); // ______________________________________ STEP 2 only needed one time
   //removeDir(FFat, "/data");
   //deleteFile(FFat, "/data/readings.csv");
-  //writeFile(FFat, "/data/readings.csv", ",rec,datetimes,A0,A1,A2,\n\r"); // STEP 3 create file with CSV header, only needed one time
-  readFile(FFat, "/data/readings.csv");
+  //writeFile(FFat, "/data/readings.csv", ",rec,datetimes,A0,A1,A2,\n"); // STEP 3 create file with CSV header, only needed one time
+  //readFile(FFat, "/data/readings.csv");
 
 }
 
@@ -74,9 +74,9 @@ void FFAT_Tools::listDir(fs::FS &fs, const char * dirname, uint8_t levels){
           listDir(fs, file.path(), levels -1);
         }
     } else {
-      Serial.print("  FILE: ");
+      Serial.print(" name: ");
       Serial.print(file.name());
-      Serial.print("\tSIZE: ");
+      Serial.print("\tsize: ");
       Serial.println(file.size());
     }
     file = root.openNextFile();
@@ -84,21 +84,26 @@ void FFAT_Tools::listDir(fs::FS &fs, const char * dirname, uint8_t levels){
 }
 
 void FFAT_Tools::createDir(fs::FS &fs, const char * path){
-    Serial.printf("Creating Dir: %s\n", path);
+    if ( DIAG ) Serial.printf("Creating Dir: %s\n", path);
     if(fs.mkdir(path)){
-        Serial.println("Dir created");
+        if ( DIAG ) Serial.println("Dir created");
     } else {
         Serial.println("mkdir failed");
     }
 }
 
 void FFAT_Tools::removeDir(fs::FS &fs, const char * path){
-    Serial.printf("Removing Dir: %s\n", path);
+    if ( DIAG ) Serial.printf("Removing Dir: %s\n", path);
     if(fs.rmdir(path)){
-        Serial.println("Dir removed");
+        if ( DIAG ) Serial.println("Dir removed");
     } else {
         Serial.println("rmdir failed");
     }
+}
+
+bool FFAT_Tools::existFile(fs::FS &fs, const char * path){
+  if ( DIAG ) Serial.printf("checking file: %s\r\n", path);
+  return fs.exists(path);
 }
 
 void FFAT_Tools::readFile(fs::FS &fs, const char * path){
@@ -110,7 +115,7 @@ void FFAT_Tools::readFile(fs::FS &fs, const char * path){
     return;
   }
 
-  Serial.println("- read from file:");
+  if ( DIAG ) Serial.println("- read from file:");
   while(file.available()){
     Serial.write(file.read());
   }
@@ -118,7 +123,7 @@ void FFAT_Tools::readFile(fs::FS &fs, const char * path){
 }
 
 void FFAT_Tools::writeFile(fs::FS &fs, const char * path, const char * message){
-  Serial.printf("Writing file: %s\r\n", path);
+  if ( DIAG ) Serial.printf("Writing file: %s\r\n", path);
 
   File file = fs.open(path, FILE_WRITE);
   if(!file){
@@ -126,7 +131,7 @@ void FFAT_Tools::writeFile(fs::FS &fs, const char * path, const char * message){
     return;
   }
   if(file.print(message)){
-    Serial.println("- file written");
+    if ( DIAG ) Serial.println("- file written");
   } else {
     Serial.println("- write failed");
   }
@@ -134,7 +139,7 @@ void FFAT_Tools::writeFile(fs::FS &fs, const char * path, const char * message){
 }
 
 void FFAT_Tools::appendFile(fs::FS &fs, const char * path, const char * message){
-  Serial.printf("Appending to file: %s\r\n", path);
+  if ( DIAG ) Serial.printf("Appending to file: %s\r\n", path);
 
   File file = fs.open(path, FILE_APPEND);
   if(!file){
@@ -142,7 +147,7 @@ void FFAT_Tools::appendFile(fs::FS &fs, const char * path, const char * message)
     return;
   }
   if(file.print(message)){
-    Serial.println("- message appended");
+    if ( DIAG ) Serial.println("- message appended");
   } else {
     Serial.println("- append failed");
   }
@@ -150,18 +155,18 @@ void FFAT_Tools::appendFile(fs::FS &fs, const char * path, const char * message)
 }
 
 void FFAT_Tools::renameFile(fs::FS &fs, const char * path1, const char * path2){
-  Serial.printf("Renaming file %s to %s\r\n", path1, path2);
+  if ( DIAG ) Serial.printf("Renaming file %s to %s\r\n", path1, path2);
   if (fs.rename(path1, path2)) {
-    Serial.println("- file renamed");
+    if ( DIAG ) Serial.println("- file renamed");
   } else {
     Serial.println("- rename failed");
   }
 }
 
 void FFAT_Tools::deleteFile(fs::FS &fs, const char * path){
-  Serial.printf("Deleting file: %s\r\n", path);
+  if ( DIAG ) Serial.printf("Deleting file: %s\r\n", path);
   if(fs.remove(path)){
-    Serial.println("- file deleted");
+    if ( DIAG ) Serial.println("- file deleted");
   } else {
     Serial.println("- delete failed");
   }

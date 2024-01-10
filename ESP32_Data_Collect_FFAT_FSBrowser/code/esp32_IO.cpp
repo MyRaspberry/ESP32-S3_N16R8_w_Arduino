@@ -71,16 +71,25 @@ float Esp32_IO::in_volt(int ain) {
 
 void Esp32_IO::Ains() {
   rec += 1;
-  nows(); // ________________________________________________________ get timestamp, see tnows
+  time_t now = time(nullptr);
+  now += TZs; // ____________________________________________________ add TZ, Time zone in Thailand (GMT+7) 
+  struct tm ti;
+  gmtime_r(&now, &ti);
+  sprintf(tnows, "%d-%02d-%02d %02d:%02d:%02d",ti.tm_year+1900,ti.tm_mon+1, ti.tm_mday, ti.tm_hour, ti.tm_min, ti.tm_sec );
+  snprintf(WantedFileName,35, "/data/readings_%d-%02d-%02d.csv",ti.tm_year+1900,ti.tm_mon+1, ti.tm_mday);
+
   sensorA0val = analogRead(sensorA0);
   sensorA1val = analogRead(sensorA1);
   sensorA2val = analogRead(sensorA2);
 
-  snprintf(A_Reads,100, ",%d,%s,%.2f,%.2f,%.2f,\n\r", rec,tnows,in_pct(sensorA0val), in_pct(sensorA1val), in_pct(sensorA2val) );
-
-  if ( DIAG ) { Serial.print(A_Reads); }
+  snprintf(A_Reads,100, ",%d,%s,%.2f,%.2f,%.2f,\n", rec,tnows,in_pct(sensorA0val), in_pct(sensorA1val), in_pct(sensorA2val) );
+  if ( DIAG ) { Serial.println(); Serial.print(A_Reads); }
 }
 
 char * Esp32_IO::get_A_Reads() {
   return A_Reads;
+}
+
+char * Esp32_IO::get_Fname() {
+  return WantedFileName;
 }

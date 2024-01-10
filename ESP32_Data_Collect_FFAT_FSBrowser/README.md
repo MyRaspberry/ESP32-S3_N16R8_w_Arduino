@@ -20,8 +20,8 @@ incl:<br/>
 
 ++ FSBrowser HOME PAGE
 
-*with show dir and files of FFAT<br/>
-*data file print ( html ) ( can be saved as xxx.csv and used by office )<br/>
-*Upload and Download<br/>
-*favicon.ico upload to FFAT and served<br/>
+* with show dir and files of FFAT<br/>
+* data file print ( html ) ( can be saved as xxx.csv and used by office )<br/>
+* Upload and Download<br/>
+* favicon.ico upload to FFAT and served<br/>
 

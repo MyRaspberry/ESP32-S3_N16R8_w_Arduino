@@ -17,18 +17,21 @@ incl:<br/>
 
 
 
-##v0.2.A+
+## v0.2.A+
 
 ++ FSBrowser HOME PAGE
 
-*with show dir and files of FFAT<br/>
-*data file print ( html ) ( can be saved as xxx.csv and used by office )<br/>
-*Upload and Download<br/>
-*favicon.ico upload to FFAT and served<br/>
+* with show dir and files of FFAT<br/>
+* data file print ( html ) ( can be saved as xxx.csv and used by office )<br/>
+* Upload and Download<br/>
+* favicon.ico upload to FFAT and served<br/>
 
-##v0.2.A++
-* show esp_info, FFAT_drive data, last DirList in HOME PAGE
+## v0.2.A++
 
-##v0.2.B
-*PSRAM has 5 arrays 3600 long ( 1h of 1sec samples )<br/>
-*show PSRAM 1min AVG MIN MAX data collection<br/>
+* show esp_info, FFAT_drive data, last DirList in HOME PAGE<br/>
+
+### 1 sec : save to PSRAM Array
+## v0.2.B
+
+* PSRAM has 5 arrays 3600 long ( 1h of 1sec samples )<br/>
+* show PSRAM 1min AVG MIN MAX data collection<br/>

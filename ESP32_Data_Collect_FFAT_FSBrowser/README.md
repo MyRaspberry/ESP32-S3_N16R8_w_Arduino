@@ -35,3 +35,4 @@ incl:<br/>
 
 * PSRAM has 5 arrays 3600 long ( 1h of 1sec samples )<br/>
 * show PSRAM 1min AVG MIN MAX data collection<br/>
+[ looks like ](http://kll.byethost7.com/kllfusion01/downloads/ESP32_FSBrowser_R16N8.png)

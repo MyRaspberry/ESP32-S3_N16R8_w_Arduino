@@ -13,6 +13,9 @@ Board_RGB_LED rainbow;
 #include "esp32_IO.h"
 Esp32_IO esp_io;
 
+#include "esp32_array.h"
+Esp32_Array adata;
+
 #include "FFAT_tools.h"
 FFAT_Tools esp_drive;
 
@@ -22,7 +25,8 @@ void setup(void){
   delay(500);
   rainbow.setup();
   esp_io.setup();
-  esp_io.esp_info(); // _____________________________________________ CHIP INFO
+  adata.setup(); // use PSRAM arrays 1 h of 1 sec readings
+  Serial.println( esp_io.esp_info() ); // ___________________________ CHIP INFO
   esp_drive.setup(); // _____________________________________________ FFAT check file /data/readings.csv
   wifi_setup(); // __________________________________________________ wifi.no +++ web server with filesystem access
   Serial.println( "\n___ SETUP  complete" );
@@ -31,6 +35,7 @@ void setup(void){
 void Job_1sec(){ // _________________________________________________ 1 sec jobs
   //rainbow.run(); // _________________________________________________ board_RGB_LED change color // OFF as LED makes Ain BAD / board issue ?
   wifi_run();
+  adata.Ains();
 }
 
 void Job_Nsec() { // ________________________________________________ and do some analog reading
@@ -63,9 +68,11 @@ void Job_1min(){
       esp_drive.writeFile(FFat, isFname, ",rec,datetimes,A0,A1,A2,\n"); // STEP 3 create file with CSV header, only needed one time per day
       delay(500);
     }
-    esp_drive.appendFile(FFat, isFname, esp_io.get_A_Reads() ); // _ last 15 sec reading stored as string
+    esp_drive.appendFile(FFat, isFname, esp_io.get_A_Reads() ); // _ last 15 sec reading stored as CSV string
     //Serial.print("___ create and write and append to it ");
   }
+  adata.job1min();  // print 1min AVG MIN MAX of 1sev values of PSRAM arrays of 1h long 
+
 }
 
 void loop(void) { // ________________________________________________ see code_loop.ino

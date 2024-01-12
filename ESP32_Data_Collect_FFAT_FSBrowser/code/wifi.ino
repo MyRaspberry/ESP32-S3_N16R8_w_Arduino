@@ -9,6 +9,7 @@
 #include <WebServer.h>
 #include <ESPmDNS.h>
 
+
 #define BIGbuf 5000
 char DYN_HTML[BIGbuf];
 String DYN_HTMLs = " DYN_HTMLs "; // try for creation of HTML a string type, only before send convert back to char
@@ -24,6 +25,7 @@ const char *password = STAPSK;
 const char *rev = REV;
 const int port = PORT;
 const char* host = HOST;
+const int TZs = LOCALTZs; // used to make filename with date
 
 IPAddress thisip(FIXIP); // ___________________________________ fix IP for webserver
 
@@ -297,18 +299,29 @@ void handleRoot() {
   form {font-size: 1.5rem; }\
   input[type=number] {font-size: 2rem;}\
   table { width: 100%; }\
+  .bg-blue {background-color:aliceblue;padding:25px;}\
   </style>\
   </head>\
   <body>\
   <h1>ESP32-S3 Webserver</h1> <h3>via Arduino IDE 2.2.1</h3>\
-  <img src='https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/_images/ESP32-S3_DevKitC-1_pinlayout_v1.1.jpg' style='margin:15px' alt='esp32-s3' width='500' >\
-  <hr>\
-  <p>This is a File System Web Browser on the FFAT<br/> in PSFLASH 10MB partition of 16MB ( N16 )</p>\
-  <p><a href='/list?dir=/' target='_blank' ><b> root dir :</b></a></p>\
-  <p><a href='/list?dir=/data' target='_blank' ><b> /data/ dir :Ain readings to FILE : SIZE</b></a></p><CODE>";
+  <img src='https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/_images/ESP32-S3_DevKitC-1_pinlayout_v1.1.jpg' style='margin:15px' alt='esp32-s3' width='500' >";
+  DYN_HTMLs  += "<div class=\"bg-blue\">";
+  String wwwespInfo = esp_io.esp_info();
+  wwwespInfo.replace("\n", "<br/>");
+  DYN_HTMLs  += wwwespInfo;
+  DYN_HTMLs  += "</div>";
+  DYN_HTMLs  += "<hr><p>This is a File System Web Browser on the FFAT<br/> in PSFLASH 10MB partition of 16MB ( N16 )</p>";
+
+  DYN_HTMLs  += "<div class=\"bg-blue\">";
+  DYN_HTMLs  += String(esp_drive.get_FFAT_infos());
+  DYN_HTMLs  += "</div>";
+  
+  DYN_HTMLs  += "<p><a href='/list?dir=/' target='_blank' ><b> root dir :</b></a></p>\
+  <p><a href='/list?dir=/data' target='_blank' ><b> /data/ dir :Ain readings to FILE : SIZE</b></a></p>";
   //DYN_HTMLs  += DYN_DIRS;
   if ( Flistcount > 0 ) { // have dir file info to show in table
-    DYN_HTMLs  += "<div><table>";
+    DYN_HTMLs  += "<div class=\"bg-blue\">";
+    DYN_HTMLs  += "<table>";
     DYN_HTMLs  += "<tr>";
     for ( int c = 0; c< 4;c++){
       DYN_HTMLs  += "<th>";
@@ -334,7 +347,12 @@ void handleRoot() {
   <p><b>File upload :</b></p>\
   <input type=\"file\" name=\"name\">\
   <input class=\"button\" type=\"submit\" value=\"Upload\"></form></p>\
-  <hr><table><tr><th>\
+  <hr>";
+  DYN_HTMLs  += "<p>PSRAM ( R8 ) 8MB used for datasampling 1h every 1 sec </br> and every 1 min report AVG MIN MAX </p><div class=\"bg-blue\">";
+  String wwwPSRAM = adata.get_PSRAM1min();
+  wwwPSRAM.replace("\n", "<br/>"); 
+  DYN_HTMLs  += wwwPSRAM;
+  DYN_HTMLs  += "</div><hr><table><tr><th>\
   <p><a href='http://kll.byethost7.com/kllfusion01/infusions/articles/articles.php?article_id=230'\
   target='_blank' ><b>kll engineering blog</b></a></p></th><th><p>rev: ";
   DYN_HTMLs  += String(rev);

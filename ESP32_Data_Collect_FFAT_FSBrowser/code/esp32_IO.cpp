@@ -4,7 +4,10 @@
 #include <time.h>
 
 #include <Esp.h>
-#include "esp_heap_caps.h" // not sure about this option:
+#include "esp_heap_caps.h"
+// also check on FFAT installed / usage (10MB of PSFLASH 16MB)
+#include "FS.h"
+#include "FFat.h"
 
 static bool DIAG = true; //false; //true;
 
@@ -14,40 +17,61 @@ Esp32_IO::Esp32_IO() { // init for later use
 
 void Esp32_IO::setup() {
   if ( DIAG ) { Serial.println("\n+++ Esp32_IO.setup()");}
+  #include "settings.h"
+  thisTZs = LOCALTZs;
 }
 
 
-void Esp32_IO::esp_info() {
-  Serial.println("\n\n================================");
-  Serial.printf("Chip Model: %s\n", ESP.getChipModel());
-  Serial.printf("Chip Revision: %d\n", ESP.getChipRevision());
-  Serial.printf("with %d core\n", ESP.getChipCores());
-  Serial.printf("Flash Chip Size : %d \n", ESP.getFlashChipSize());
-  Serial.printf("Flash Chip Speed : %d \n", ESP.getFlashChipSpeed());
+String Esp32_IO::esp_info() {
+  static int BIGline = 200; 
+  char infoline[BIGline];
+  espInfo  = "\n================================\n";
+  snprintf(infoline,BIGline,"Chip Model: %s\n", ESP.getChipModel() );
+  espInfo += String( infoline );
+  snprintf(infoline,BIGline,"Chip Revision: %d\n", ESP.getChipRevision());
+  espInfo += String( infoline );
 
-  Serial.printf("Total Heap : %d \n",ESP.getHeapSize());
-  Serial.printf("Free Heap  : %d \n",ESP.getFreeHeap());
+  snprintf(infoline,BIGline,"with %d core\n", ESP.getChipCores());
+  espInfo += String( infoline );
+  snprintf(infoline,BIGline,"Flash Chip Size : %d \n", ESP.getFlashChipSize());
+  espInfo += String( infoline );
+  snprintf(infoline,BIGline,"Flash Chip Speed : %d \n", ESP.getFlashChipSpeed());
+  espInfo += String( infoline );
 
-  Serial.printf("Total PSRAM : %d \n",ESP.getPsramSize());
-  Serial.printf("Free PSRAM  : %d \n",ESP.getFreePsram());
 
-  Serial.printf("Used PSRAM : %d\n", ESP.getPsramSize() - ESP.getFreePsram());
+  snprintf(infoline,BIGline,"RAM :");
+  espInfo += String( infoline );
+  snprintf(infoline,BIGline,"Total Heap : %d \n",ESP.getHeapSize());
+  espInfo += String( infoline );
+  snprintf(infoline,BIGline,"Free Heap  : %d \n",ESP.getFreeHeap());
+  espInfo += String( infoline );
+
+  snprintf(infoline,BIGline,"Total PSRAM : %d \n",ESP.getPsramSize());
+  espInfo += String( infoline );
+  snprintf(infoline,BIGline,"Free PSRAM  : %d \n",ESP.getFreePsram());
+  espInfo += String( infoline );
+  snprintf(infoline,BIGline,"Used PSRAM : %d\n", ESP.getPsramSize() - ESP.getFreePsram());
+  espInfo += String( infoline );
 
   esp_chip_info_t chip_info;
   esp_chip_info(&chip_info);
-  Serial.printf("\nFeatures included:\n %s\n %s\n %s\n %s\n %s\n",
+  snprintf(infoline,BIGline,"\nFeatures included:\n %s\n %s\n %s\n %s\n %s\n",
       (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded flash" : "",
       (chip_info.features & CHIP_FEATURE_WIFI_BGN) ? "2.4GHz WiFi" : "",
       (chip_info.features & CHIP_FEATURE_BLE) ? "Bluetooth LE" : "",
       (chip_info.features & CHIP_FEATURE_BT) ? "Bluetooth Classic" : "",
-      (chip_info.features & CHIP_FEATURE_IEEE802154) ? "IEEE 802.15.4" : "");
-  
-  Serial.println();
+      (chip_info.features & CHIP_FEATURE_IEEE802154) ? "IEEE 802.15.4" : "") ;
+  espInfo += String( infoline );
+  espInfo += "\n================================\n";
+ 
+  if ( DIAG ) { Serial.println("___ esp_info :"); }
+  return espInfo;
+
 }
 
 void Esp32_IO::nows() { // ____________________________________________________ make / find timestring tnows
   time_t now = time(nullptr);
-  now += TZs; // ____________________________________________________ add TZ, Time zone in Thailand (GMT+7) 
+  now += thisTZs;
   struct tm ti;
   gmtime_r(&now, &ti);
   sprintf(tnows, "%d-%02d-%02d %02d:%02d:%02d",ti.tm_year+1900,ti.tm_mon+1, ti.tm_mday, ti.tm_hour, ti.tm_min, ti.tm_sec );
@@ -72,7 +96,7 @@ float Esp32_IO::in_volt(int ain) {
 void Esp32_IO::Ains() {
   rec += 1;
   time_t now = time(nullptr);
-  now += TZs; // ____________________________________________________ add TZ, Time zone in Thailand (GMT+7) 
+  now += thisTZs;
   struct tm ti;
   gmtime_r(&now, &ti);
   sprintf(tnows, "%d-%02d-%02d %02d:%02d:%02d",ti.tm_year+1900,ti.tm_mon+1, ti.tm_mday, ti.tm_hour, ti.tm_min, ti.tm_sec );

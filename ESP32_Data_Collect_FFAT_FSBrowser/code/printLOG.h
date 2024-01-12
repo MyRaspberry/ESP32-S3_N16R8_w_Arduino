@@ -112,4 +112,17 @@ Appending to file: /data/readings.csv
 .........
 
 
+/// setup esp32_array 
+
+Sketch uses 815053 bytes (25%) of program storage space. Maximum is 3145728 bytes.
+Global variables use 59704 bytes (18%) of dynamic memory, leaving 267976 bytes for local variables. Maximum is 327680 bytes.
+
+The PSRAM is correctly initialized
+after init
+___ PSRam : 8386279, Free : 8386019, Used : 260
+after setup() arrays 
+___ PSRam : 8386199, Free : 8313939, Used : 72260
+
+
+
 */

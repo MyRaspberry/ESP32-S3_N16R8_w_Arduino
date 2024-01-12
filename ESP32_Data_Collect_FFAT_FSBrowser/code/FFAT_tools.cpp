@@ -11,21 +11,34 @@ FFAT_Tools::FFAT_Tools() { // init
   ;
 }
 
+void FFAT_Tools::FFAT_info() {
+  // char FFAT_info[100];
+  snprintf(FFAT_infos,100,"ESP32 PSFLASH has FFAT : total %d , used %d , free %d \n", FFat.totalBytes(), FFat.usedBytes(), FFat.freeBytes()  );  // 
+  //if ( DIAG ) { Serial.println(FFAT_infos); }
+}
+
+char * FFAT_Tools::get_FFAT_infos() {
+  //if ( DIAG ) { Serial.println(" read FFAT drive again "); }
+  FFAT_info();
+  return FFAT_infos;
+}
+
 void FFAT_Tools::setup() {
   if ( DIAG ) { Serial.println("\n+++ FFAT_Tools.setup() ");}
   // ________________________________________________________________ FFAT
   // You only need to format FFat the first time you run a test
   #define FORMAT_FFAT false
   if (FORMAT_FFAT) FFat.format(); // ________________________________ STEP 1 needed only one time
-  
+
   if(!FFat.begin()){
     Serial.println("\n!\n--- FFat Mount Failed\n!");
-    return;
-  }
 
-  if ( DIAG ) Serial.println("+++ FFAT ");
-  if ( DIAG ) Serial.printf("+++ Total space: %10u\n", FFat.totalBytes());
-  if ( DIAG ) Serial.printf("+++ Free space: %10u\n", FFat.freeBytes());
+  } else {
+    FFAT_info();
+    Serial.println(FFAT_infos);
+  }
+  
+
   listDir(FFat, "/", 1); // _________________________________________ level 1 shows also /data dir content
 // OLD
   //writeFile(FFat, "/hello.txt", "Hello ");

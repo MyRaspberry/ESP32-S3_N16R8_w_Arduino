@@ -6,14 +6,12 @@
 #define A1pin 2 // __________ GPIO2 ADC1_1 ( here : pin 5 right )
 #define A2pin 3 // __________ GPIO3 ADC1_2 ( here : pin 13 left )
 
-static int TZs = 7*3600; // THAI local timezone (GMT+7) is declared here AND used in esp32_io.cpp for nows() AND used in wifi.ino for file date info
-
 class Esp32_IO {
   private:
     int rec = 0;
-    // int TZs = 7*3600; // ________________________________________________ add TZ, Time zone in Thailand (GMT+7) 
+    int thisTZs = 0; // see setup
     char tnows[40]; // __________________________________________________ use : strcpy(Tnows,Esp32_IO.nows() );
-
+    String espInfo = "";
     // ______________________________________________________________ get analog in data
     int sensorA0 = A0pin;   // select the input pin for the potentiometer
     int sensorA0val = 0;  // variable to store the value coming from the sensor
@@ -27,7 +25,7 @@ class Esp32_IO {
   public:
     Esp32_IO();
     void setup();
-    void esp_info();
+    String esp_info();
 
     void nows();
     char * get_tnows();

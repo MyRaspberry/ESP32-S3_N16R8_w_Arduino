@@ -7,10 +7,12 @@
 
 class FFAT_Tools {
   private:
-
+    char FFAT_infos[100];
 
   public:
     FFAT_Tools();
+    void FFAT_info();
+    char * get_FFAT_infos();
     void setup();
     void listDir(fs::FS &fs, const char * dirname, uint8_t levels);
     void createDir(fs::FS &fs, const char * path);

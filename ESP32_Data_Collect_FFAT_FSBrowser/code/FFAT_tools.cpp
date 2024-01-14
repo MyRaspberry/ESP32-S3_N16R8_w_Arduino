@@ -26,17 +26,19 @@ char * FFAT_Tools::get_FFAT_infos() {
 void FFAT_Tools::setup() {
   if ( DIAG ) { Serial.println("\n+++ FFAT_Tools.setup() ");}
   // ________________________________________________________________ FFAT
-  // You only need to format FFat the first time you run a test
-  #define FORMAT_FFAT false
-  if (FORMAT_FFAT) FFat.format(); // ________________________________ STEP 1 needed only one time
+  // You only need to format FFat the first time
 
+  #define FORMAT_FFAT true
+  
   if(!FFat.begin()){
     Serial.println("\n!\n--- FFat Mount Failed\n!");
-
-  } else {
-    FFAT_info();
-    Serial.println(FFAT_infos);
+    if (FORMAT_FFAT) {
+      Serial.println("+++ try to format FFat");
+      FFat.format(); // ________________________________ STEP 1 needed only one time
+    }
   }
+  FFAT_info();
+  Serial.println(FFAT_infos);
   
 
   listDir(FFat, "/", 1); // _________________________________________ level 1 shows also /data dir content
@@ -58,6 +60,13 @@ void FFAT_Tools::setup() {
   //deleteFile(FFat, "/data/readings.csv");
   //writeFile(FFat, "/data/readings.csv", ",rec,datetimes,A0,A1,A2,\n"); // STEP 3 create file with CSV header, only needed one time
   //readFile(FFat, "/data/readings.csv");
+// end tests
+  if ( existFile(FFat,"/data") ) {
+    Serial.println("___ found /data dir");
+  } else {
+    createDir(FFat, "/data");
+    Serial.println("___ made /data dir");
+  }
 
 }
 

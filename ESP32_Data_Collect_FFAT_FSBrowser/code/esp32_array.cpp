@@ -25,17 +25,19 @@ void Esp32_Array::setup() {
 
   if ( DIAG ) { Serial.println("\n+++ Esp32_Array.setup()");}
   if(psramInit()){
-    Serial.println("\nThe PSRAM is correctly initialized");
+    Serial.println("\n+++ PSRAM is correctly initialized");
   }else{
-    Serial.println("\nPSRAM does not work");
+    Serial.println("\n! PSRAM does not work !");
   }
   heap_caps_malloc_extmem_enable(limit);
-  logMemory("after init");
-  count_array = (int *) ps_malloc(recMax * sizeof(int));
-  datetime_array = (time_t *) ps_malloc(recMax * sizeof(time_t));
-  A0pct_array = (float *) ps_malloc(recMax * sizeof(float));
-  A1pct_array = (float *) ps_malloc(recMax * sizeof(float));
-  A2pct_array = (float *) ps_malloc(recMax * sizeof(float));
+  logMemory("after init"); 
+  // change malloc to calloc ( aka init with 0 )
+  //count_array = (int *) ps_malloc(recMax * sizeof(int));
+  count_array = (int *) ps_calloc(recMax, sizeof(int));
+  datetime_array = (time_t *) ps_calloc(recMax, sizeof(time_t));
+  A0pct_array = (float *) ps_calloc(recMax, sizeof(float));
+  A1pct_array = (float *) ps_calloc(recMax, sizeof(float));
+  A2pct_array = (float *) ps_calloc(recMax, sizeof(float));
 
   logMemory("after setup() arrays ");
 
@@ -98,7 +100,7 @@ void Esp32_Array::Ains() {
 }
 
 void Esp32_Array::job1min() {
-  if ( DIAG )  {  Serial.println("___ start adata.job1min() "); }
+  Serial.println("___ start adata.job1min() ");
   float A0_AVG =0.0;
   float A1_AVG =0.0;
   float A2_AVG =0.0;

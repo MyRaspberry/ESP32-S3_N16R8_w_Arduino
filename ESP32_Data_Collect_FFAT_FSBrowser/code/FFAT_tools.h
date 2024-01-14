@@ -8,7 +8,6 @@
 class FFAT_Tools {
   private:
     char FFAT_infos[100];
-
   public:
     FFAT_Tools();
     void FFAT_info();

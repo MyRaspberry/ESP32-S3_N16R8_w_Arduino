@@ -35,6 +35,6 @@ incl:<br/>
 *show from this a 1min AVG MIN MAX data evaluation<br/>
 
 ## v0.3.0
-*FFat file list to show ROOT and /data/ at every refresh
-*make a Select Option drop down list for PRINT
-*use that selected to make a Download Link for it 
+*FFat file list to show ROOT and /data/ at every refresh<br/>
+*make a Select Option drop down list for PRINT<br/>
+*use that selected to make a Download Link for it<br/>

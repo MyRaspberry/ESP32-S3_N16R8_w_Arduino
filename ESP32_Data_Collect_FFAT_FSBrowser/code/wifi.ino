@@ -14,6 +14,7 @@
 char DYN_HTML[BIGbuf];
 String DYN_HTMLs = " DYN_HTMLs "; // try for creation of HTML a string type, only before send convert back to char
 String DYN_DIRS = " ";
+String LastPrintFile="";
 // as can not append arrays in Cpp set
 #define maxDirsFiles 100
 String Flist[maxDirsFiles][4] = {{"type","name","size","date"}};
@@ -177,18 +178,12 @@ void handleFileCreate() {
   path = String();
 }
 
-void handleFileList() {
-  if (!server.hasArg("dir")) {
-    server.send(500, "text/plain", "BAD ARGS");
-    return;
-  }
-  DYN_DIRS = "";
-  String path = server.arg("dir");
-  Serial.println("handleFileList: " + path);
-  Flistcount = 0;
+void getFileList(String path = "/") {
   File root = FILESYSTEM.open(path);
   path = String();
 
+  Flistcount = 0;
+  DYN_DIRS = "";
   DYN_DIRS = "[";
   if(root.isDirectory()){
     File file = root.openNextFile();
@@ -225,14 +220,27 @@ void handleFileList() {
     }
   }
   DYN_DIRS += "\n]";
-  server.send(200, "text/json", DYN_DIRS );
-  for ( int r = 0; r <= Flistcount; r++) {
-    for ( int c = 0; c < 4; c++ ) {
-      Serial.print(Flist[r][c]);
-      Serial.print(",");
-    }
-    Serial.println();
+  //diag print terminal
+  //for ( int r = 0; r <= Flistcount; r++) {
+  //  for ( int c = 0; c < 4; c++ ) {
+  //    Serial.print(Flist[r][c]);
+  //    Serial.print(",");
+  //  }
+  //  Serial.println();
+  //}
+
+
+}
+
+void handleFileList() {
+  if (!server.hasArg("dir")) {
+    server.send(500, "text/plain", "BAD ARGS");
+    return;
   }
+  String path = server.arg("dir");
+  Serial.println("handleFileList: " + path);
+  getFileList(path);  // makes DYN_DIRS and Flist for tabulated info
+  server.send(200, "text/json", DYN_DIRS );  // old style FSBrowser
 }
 
 void handleFilePrint() { // on /print?file=/data/readings.csv
@@ -242,7 +250,7 @@ void handleFilePrint() { // on /print?file=/data/readings.csv
   }
   String path = server.arg("file");
   Serial.println("\nhandleFile: " + path);
-
+  LastPrintFile = path; // remember to download it later
   String contentType = getContentType(path);
   File file = FILESYSTEM.open(path, "r");
   server.streamFile(file, contentType);
@@ -304,21 +312,22 @@ void handleRoot() {
   </head>\
   <body>\
   <h1>ESP32-S3 Webserver</h1> <h3>via Arduino IDE 2.2.1</h3>\
-  <img src='https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/_images/ESP32-S3_DevKitC-1_pinlayout_v1.1.jpg' style='margin:15px' alt='esp32-s3' width='500' >";
+  <details>\
+  <summary>PINOUT</summary>\
+  <img src='https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/_images/ESP32-S3_DevKitC-1_pinlayout_v1.1.jpg' style='margin:15px' alt='esp32-s3' width='500' >\
+  </details><hr>";
   DYN_HTMLs  += "<div class=\"bg-blue\">";
   String wwwespInfo = esp_io.esp_info();
   wwwespInfo.replace("\n", "<br/>");
   DYN_HTMLs  += wwwespInfo;
   DYN_HTMLs  += "</div>";
-  DYN_HTMLs  += "<hr><p>This is a File System Web Browser on the FFAT<br/> in PSFLASH 10MB partition of 16MB ( N16 )</p>";
-
+  DYN_HTMLs  += "<hr><p>File System Web Browser on the FFAT partition</p>";
   DYN_HTMLs  += "<div class=\"bg-blue\">";
   DYN_HTMLs  += String(esp_drive.get_FFAT_infos());
   DYN_HTMLs  += "</div>";
   
-  DYN_HTMLs  += "<p><a href='/list?dir=/' target='_blank' ><b> root dir :</b></a></p>\
-  <p><a href='/list?dir=/data' target='_blank' ><b> /data/ dir :Ain readings to FILE : SIZE</b></a></p>";
-  //DYN_HTMLs  += DYN_DIRS;
+  DYN_HTMLs  += "<p><b> root dir :</b></p>";
+  getFileList("/");
   if ( Flistcount > 0 ) { // have dir file info to show in table
     DYN_HTMLs  += "<div class=\"bg-blue\">";
     DYN_HTMLs  += "<table>";
@@ -341,10 +350,64 @@ void handleRoot() {
 
     DYN_HTMLs  += "</table></div>";
   }
-  DYN_HTMLs  += "</CODE><hr><p><a href='/print?file=/data/readings.csv' target='_blank' ><b>File print</b></a></p>\
-  <p><a href=\"/download?file=/data/readings.csv\" download=\"readings.csv\"><b>File download</b></a></p>\
-  <hr><p><form action=/edit method=\"post\" enctype=\"multipart/form-data\">\
-  <p><b>File upload :</b></p>\
+  DYN_HTMLs  += "<p><b> /data/ dir :Ain readings to FILE : SIZE : TIME</b></p>";
+  getFileList("/data");
+  if ( Flistcount > 0 ) { // have dir file info to show in table
+    DYN_HTMLs  += "<div class=\"bg-blue\">";
+    DYN_HTMLs  += "<table>";
+    DYN_HTMLs  += "<tr>";
+    for ( int c = 0; c< 4;c++){
+      DYN_HTMLs  += "<th>";
+      DYN_HTMLs  += Flist[0][c];
+      DYN_HTMLs  += "</th>";
+    }
+    DYN_HTMLs  += "</tr>";
+    for ( int r =1; r <= Flistcount; r++) {
+      DYN_HTMLs  += "<tr>";
+      for ( int c = 0; c < 4;c++){
+        DYN_HTMLs  += "<td>";
+        DYN_HTMLs  += Flist[r][c];
+        DYN_HTMLs  += "</td>";
+      }
+      DYN_HTMLs  += "</tr>";
+    }
+
+    DYN_HTMLs  += "</table></div>";
+  }
+  DYN_HTMLs  += "</CODE><hr>";
+
+  DYN_HTMLs  += "<p><form action=\"/print\">\
+  <label for=\"file\">Choose a PRINT file:</label>\
+  <select id=\"file\" name=\"file\">\
+  <option value =\"\" >--- select data file ----</option>"; // first line 
+  for ( int r =1; r <= Flistcount; r++) {
+    if ( Flist[r][0] = "file") {
+      DYN_HTMLs  += "<option value=\"";
+      DYN_HTMLs  += "/"+Flist[r][1]; // add the leading /
+      DYN_HTMLs  += "\">";
+      DYN_HTMLs  += Flist[r][1];
+      DYN_HTMLs  += "</option>";
+    }
+  }
+  DYN_HTMLs  += "</select> <input type=\"submit\" value=\"Print\"> </form></p>"; 
+  //DYN_HTMLs  += "<p><a href='/print?file=/data/readings.csv' target='_blank' ><b>File print</b></a></p>";
+  if ( LastPrintFile == "" ) {
+    ;
+  } else {
+    //DYN_HTMLs  += "<p><a href=\"/download?file=/data/readings.csv\" download=\"readings.csv\"><b>File download</b></a></p>";
+    DYN_HTMLs  += "<p><a href=\"/download?file=";
+    String wwwdfile = LastPrintFile;
+    //wwwdfile.replace("//", "/");
+    DYN_HTMLs  += wwwdfile; // /data/readingsXXX.csv
+    DYN_HTMLs  += "\" download=\"";
+    wwwdfile.replace("data", ""); // clean download name
+    wwwdfile.replace("/", "");
+    DYN_HTMLs  += wwwdfile;  // readingsXXX.csv
+    DYN_HTMLs  += "\"><b>download</b></a></p>";
+  }
+
+  DYN_HTMLs  += "<hr><p><form action=/edit method=\"post\" enctype=\"multipart/form-data\">\
+  <label for=\"file\">Choose a UPLOAD file:</label>\
   <input type=\"file\" name=\"name\">\
   <input class=\"button\" type=\"submit\" value=\"Upload\"></form></p>\
   <hr>";

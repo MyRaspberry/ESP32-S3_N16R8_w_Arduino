@@ -25,7 +25,7 @@ void Esp32_IO::setup() {
 String Esp32_IO::esp_info() {
   static int BIGline = 200; 
   char infoline[BIGline];
-  espInfo  = "\n================================\n";
+  espInfo  = ""; //"\n================================\n";
   snprintf(infoline,BIGline,"Chip Model: %s\n", ESP.getChipModel() );
   espInfo += String( infoline );
   snprintf(infoline,BIGline,"Chip Revision: %d\n", ESP.getChipRevision());
@@ -46,25 +46,25 @@ String Esp32_IO::esp_info() {
   snprintf(infoline,BIGline,"Free Heap  : %d \n",ESP.getFreeHeap());
   espInfo += String( infoline );
 
-  snprintf(infoline,BIGline,"Total PSRAM : %d \n",ESP.getPsramSize());
+  snprintf(infoline,BIGline,"PSRAM Total : %d ",ESP.getPsramSize());
   espInfo += String( infoline );
-  snprintf(infoline,BIGline,"Free PSRAM  : %d \n",ESP.getFreePsram());
+  snprintf(infoline,BIGline,"Free : %d ",ESP.getFreePsram());
   espInfo += String( infoline );
-  snprintf(infoline,BIGline,"Used PSRAM : %d\n", ESP.getPsramSize() - ESP.getFreePsram());
+  snprintf(infoline,BIGline,"Used : %d\n", ESP.getPsramSize() - ESP.getFreePsram());
   espInfo += String( infoline );
 
   esp_chip_info_t chip_info;
   esp_chip_info(&chip_info);
-  snprintf(infoline,BIGline,"\nFeatures included:\n %s\n %s\n %s\n %s\n %s\n",
-      (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded flash" : "",
-      (chip_info.features & CHIP_FEATURE_WIFI_BGN) ? "2.4GHz WiFi" : "",
-      (chip_info.features & CHIP_FEATURE_BLE) ? "Bluetooth LE" : "",
-      (chip_info.features & CHIP_FEATURE_BT) ? "Bluetooth Classic" : "",
-      (chip_info.features & CHIP_FEATURE_IEEE802154) ? "IEEE 802.15.4" : "") ;
+  snprintf(infoline,BIGline,"\nFeatures included:\n %s %s %s %s %s",
+      (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded flash\n" : "",
+      (chip_info.features & CHIP_FEATURE_WIFI_BGN) ? "2.4GHz WiFi\n" : "",
+      (chip_info.features & CHIP_FEATURE_BLE) ? "Bluetooth LE\n" : "",
+      (chip_info.features & CHIP_FEATURE_BT) ? "Bluetooth Classic\n" : "",
+      (chip_info.features & CHIP_FEATURE_IEEE802154) ? "IEEE 802.15.4\n" : "") ;
   espInfo += String( infoline );
-  espInfo += "\n================================\n";
+  espInfo += ""; //\n================================\n";
  
-  if ( DIAG ) { Serial.println("___ esp_info :"); }
+  //if ( DIAG ) { Serial.println("___ esp_info :"); }
   return espInfo;
 
 }

@@ -36,6 +36,7 @@ void FFAT_Tools::setup() {
       Serial.println("+++ try to format FFat");
       FFat.format(); // ________________________________ STEP 1 needed only one time
     }
+    FFat.begin(); // try again OR REBOOT NEEDE?
   }
   FFAT_info();
   Serial.println(FFAT_infos);
